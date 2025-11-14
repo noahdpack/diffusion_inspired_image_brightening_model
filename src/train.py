@@ -50,9 +50,16 @@ def train(
     print("Starting training...")
     global_step = 0
 
+    # Directory to save visualizations
+    viz_dir = Path("viz")
+    viz_dir.mkdir(exist_ok=True)
+
     for epoch in range(epochs):
         print(f"\nEpoch {epoch + 1}/{epochs}")
         model.train()
+
+        running_loss = 0.0
+        num_batches = 0
 
         for step, (_, bright_image) in enumerate(dataloader):
             optimizer.zero_grad()
@@ -70,12 +77,28 @@ def train(
             optimizer.step()
 
             global_step += 1
-            if (step + 1) % 10 == 0:
-                print(f"[Epoch {epoch + 1} | Step {step + 1}] Loss: {loss.item():.4f}")
+            running_loss += loss.item()
+            num_batches += 1
 
-        # Visual check after each epoch (uses a fresh batch from dataloader)
+            # Print loss for every step
+            print(f"[Epoch {epoch + 1} | Step {step + 1}] Loss: {loss.item():.4f}")
+
+        # Epoch average loss
+        epoch_loss = running_loss / max(1, num_batches)
+        print(f"--> Epoch {epoch + 1} average loss: {epoch_loss:.4f}")
+
+        # Save a visualization after each epoch (no blocking window)
         try:
-            predict_and_plot_image(model, dataloader, device, t_value=T - 1)
+            save_path = viz_dir / f"epoch_{epoch + 1}.png"
+            predict_and_plot_image(
+                model,
+                dataloader,
+                device,
+                t_value=T - 1,
+                save_path=str(save_path),
+                show=False,  # important: do not block training
+            )
+            print(f"Saved visualization to {save_path}")
         except Exception as e:
             print(f"Visualization failed (this can happen on headless servers): {e}")
 

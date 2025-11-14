@@ -10,6 +10,11 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 
+def to_minus_one_to_one(t: torch.Tensor) -> torch.Tensor:
+    """Map [0, 1] tensor to [-1, 1]."""
+    return (t * 2) - 1
+
+
 class PairedTransform:
     """
     Apply the same random spatial + pixel transforms to a pair of images.
@@ -23,7 +28,7 @@ class PairedTransform:
             transforms.Resize((img_size, img_size)),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
-            transforms.Lambda(lambda t: (t * 2) - 1),  # [0,1] -> [-1,1]
+            transforms.Lambda(to_minus_one_to_one),  # [0,1] -> [-1,1]
         ])
 
     def __call__(self, img1: Image.Image, img2: Image.Image) -> Tuple[torch.Tensor, torch.Tensor]:

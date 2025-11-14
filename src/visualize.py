@@ -21,10 +21,25 @@ from .utils import show_tensor_image
 import matplotlib.pyplot as plt
 
 
-def predict_and_plot_image(model, dataloader, device: str, t_value: int | None = None) -> None:
+def predict_and_plot_image(
+    model,
+    dataloader,
+    device: str,
+    t_value: int | None = None,
+    save_path: str | None = None,
+    show: bool = True,
+) -> None:
     """
     Visualize one clean bright image x0, its gamma-darkened version x_t at timestep t,
     and the model's prediction hat{x0}.
+
+    Args:
+        model: trained SimpleUnet model
+        dataloader: DataLoader providing (dark, bright) batches
+        device: "cpu" or "cuda"
+        t_value: timestep index (defaults to T - 1 for max darkening)
+        save_path: if provided, saves the figure to this path
+        show: if True, calls plt.show() (blocking); if False, closes the figure
     """
     model.eval()
 
@@ -59,7 +74,14 @@ def predict_and_plot_image(model, dataloader, device: str, t_value: int | None =
     plt.title("Model prediction of x₀")
 
     plt.tight_layout()
-    plt.show()
+
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches="tight")
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
 
 
 def main():
@@ -85,7 +107,15 @@ def main():
     state_dict = torch.load(args.checkpoint, map_location=device)
     model.load_state_dict(state_dict)
 
-    predict_and_plot_image(model, dataloader, device, t_value=args.t_value)
+    # When calling from CLI, we *do* want to see the figure
+    predict_and_plot_image(
+        model,
+        dataloader,
+        device,
+        t_value=args.t_value,
+        save_path=None,
+        show=True,
+    )
 
 
 if __name__ == "__main__":

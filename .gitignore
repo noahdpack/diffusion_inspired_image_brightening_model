@@ -19,3 +19,5 @@ env/
 # PyTorch Lightning / Hydra / etc (if ever used)
 logs/
 outputs/
+
+dataset/
