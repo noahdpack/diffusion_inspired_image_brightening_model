@@ -1,0 +1,21 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+env/
+
+# macOS metadata
+.DS_Store
+
+# Model checkpoints
+*.pth
+*.pt
+
+# Jupyter stuff
+.ipynb_checkpoints/
+
+# PyTorch Lightning / Hydra / etc (if ever used)
+logs/
+outputs/
